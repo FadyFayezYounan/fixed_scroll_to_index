@@ -1,5 +1,3 @@
-/// Sealed class representing different types of scrollable sections
-/// used for scroll-to-index calculations and rendering.
 sealed class ScrollableSection {
   const ScrollableSection();
 
