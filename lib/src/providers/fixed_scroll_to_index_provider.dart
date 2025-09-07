@@ -3,12 +3,11 @@ import 'package:flutter/material.dart';
 import '../../fixed_scroll_to_index.dart';
 
 class FixedScrollToIndexProvider extends InheritedWidget {
-  const FixedScrollToIndexProvider({
+  FixedScrollToIndexProvider({
     super.key,
     required this.controller,
-    required this.config,
     required super.child,
-  });
+  }) : config = controller.config;
 
   final FixedScrollToIndexController controller;
   final ScrollableConfig config;

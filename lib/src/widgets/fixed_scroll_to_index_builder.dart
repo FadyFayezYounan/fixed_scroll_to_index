@@ -1,5 +1,4 @@
 import 'package:fixed_scroll_to_index/fixed_scroll_to_index.dart';
-import 'package:fixed_scroll_to_index/src/providers/fixed_scroll_to_index_provider.dart';
 import 'package:flutter/material.dart';
 
 typedef FixedScrollToIndexBuilderCallback =
@@ -99,7 +98,6 @@ class _FixedScrollToIndexBuilderState extends State<FixedScrollToIndexBuilder> {
   Widget build(BuildContext context) {
     return FixedScrollToIndexProvider(
       controller: _controller,
-      config: widget.config,
       child: Builder(
         builder: (context) {
           return widget.builder(context, _controller);

@@ -9,8 +9,6 @@ import '../core/scrollable_config.dart';
 typedef IndexListener = void Function(int index);
 
 final class FixedScrollToIndexController extends ScrollController {
-  final ScrollableConfig config;
-
   FixedScrollToIndexController({
     required this.config,
     super.initialScrollOffset,
@@ -19,6 +17,8 @@ final class FixedScrollToIndexController extends ScrollController {
     super.onAttach,
     super.onDetach,
   });
+
+  final ScrollableConfig config;
 
   bool _isScrollingToSection = false;
   int _currentVisibleIndex = 0;
