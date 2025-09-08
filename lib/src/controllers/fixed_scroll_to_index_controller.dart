@@ -1,5 +1,4 @@
 import 'package:flutter/widgets.dart';
-
 import '../core/scrollable_config.dart';
 
 /// Callback function type for index change notifications.
@@ -9,6 +8,7 @@ import '../core/scrollable_config.dart';
 typedef IndexListener = void Function(int index);
 
 final class FixedScrollToIndexController extends ScrollController {
+  final ScrollableConfig config;
   FixedScrollToIndexController({
     required this.config,
     super.initialScrollOffset,
@@ -18,54 +18,31 @@ final class FixedScrollToIndexController extends ScrollController {
     super.onDetach,
   });
 
-  final ScrollableConfig config;
-
   bool _isScrollingToSection = false;
   int _currentVisibleIndex = 0;
 
-  /// Threshold for detecting significant scroll changes.
-  /// Index change notifications are only triggered when scroll position
-  /// changes by more than this amount to avoid excessive callbacks.
-  static const double _scrollThreshold = 10.0;
-
-  /// Checks if the controller is properly attached and ready for scrolling
-  bool get isReadyForScrolling => hasClients && positions.isNotEmpty;
+  // /// Threshold for detecting significant scroll changes.
+  // /// Index change notifications are only triggered when scroll position
+  // /// changes by more than this amount to avoid excessive callbacks.
+  // static const double _scrollThreshold = 10.0;
 
   /// Scrolls to the beginning of a specific ContentSection.
   ///
-  /// [sectionIndex] - Index of the ContentSection in the config.sections list
+  /// [index] - Index of the ContentSection in the config.sections list
   /// [duration] - Animation duration (optional, defaults to 300ms)
   /// [curve] - Animation curve (optional, defaults to Curves.easeInOut)
-  /// [maxRetries] - Maximum number of retry attempts if controller isn't ready
-  /// [retryDelay] - Delay between retry attempts
   ///
   /// The scroll offset is calculated by:
   /// 1. Adding the AnchorSection extent (height before the list)
   /// 2. Adding the extents of all ContentSections before the target section
-  Future<void> scrollToSection({
-    required int sectionIndex,
+  Future<void> scrollToSection(
+    int index, {
     Duration duration = const Duration(milliseconds: 300),
     Curve curve = Curves.easeInOut,
-    int maxRetries = 10,
-    Duration retryDelay = const Duration(milliseconds: 50),
   }) async {
-    if (sectionIndex < 0 || sectionIndex >= config.sections.length) {
+    if (index < 0 || index >= config.sections.length) {
       throw ArgumentError(
         'sectionIndex must be within bounds of config.sections',
-      );
-    }
-
-    // Wait for the controller to be ready with retry mechanism
-    int retryCount = 0;
-    while (!isReadyForScrolling && retryCount < maxRetries) {
-      await Future.delayed(retryDelay);
-      retryCount++;
-    }
-
-    if (!isReadyForScrolling) {
-      throw StateError(
-        'ScrollController is not attached to any scroll views after $maxRetries retries. '
-        'Make sure the CustomScrollView is properly built and the controller is attached.',
       );
     }
 
@@ -77,63 +54,17 @@ final class FixedScrollToIndexController extends ScrollController {
     offset += config.anchor.extent;
 
     // Add extents of all sections before the target section
-    for (int i = 0; i < sectionIndex; i++) {
+    for (int i = 0; i < index; i++) {
       offset += config.sections[i].extent;
     }
 
-    try {
-      // Animate to the calculated offset (beginning of the target section)
-      await animateTo(offset, duration: duration, curve: curve);
-    } finally {
-      _isScrollingToSection = false;
+    // Animate to the calculated offset (beginning of the target section)
+    await animateTo(offset, duration: duration, curve: curve);
 
-      // Update the current visible index and notify listeners
-      _updateCurrentVisibleIndex();
-    }
-  }
+    _isScrollingToSection = false;
 
-  /// Alternative method that waits for the next frame before scrolling
-  /// This is useful when calling immediately after widget creation
-  Future<void> scrollToSectionAfterFrame({
-    required int sectionIndex,
-    Duration duration = const Duration(milliseconds: 300),
-    Curve curve = Curves.easeInOut,
-  }) async {
-    // Wait for the next frame to ensure the widget tree is fully built
-    await WidgetsBinding.instance.endOfFrame;
-
-    // Additional small delay to ensure attachment
-    await Future.delayed(const Duration(milliseconds: 16));
-
-    return scrollToSection(
-      sectionIndex: sectionIndex,
-      duration: duration,
-      curve: curve,
-    );
-  }
-
-  /// Scrolls to section immediately if controller is ready, otherwise schedules it
-  void scrollToSectionWhenReady({
-    required int sectionIndex,
-    Duration duration = const Duration(milliseconds: 300),
-    Curve curve = Curves.easeInOut,
-  }) {
-    if (isReadyForScrolling) {
-      scrollToSection(
-        sectionIndex: sectionIndex,
-        duration: duration,
-        curve: curve,
-      );
-    } else {
-      // Schedule for next frame
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        scrollToSectionAfterFrame(
-          sectionIndex: sectionIndex,
-          duration: duration,
-          curve: curve,
-        );
-      });
-    }
+    // Update the current visible index and notify listeners
+    _updateCurrentVisibleIndex();
   }
 
   /// Empty listener array used as default to avoid null checks.
@@ -295,7 +226,7 @@ final class FixedScrollToIndexController extends ScrollController {
   ///
   /// Returns -1 if no sections are configured or if scroll position is invalid.
   int _calculateVisibleSectionIndex() {
-    if (!isReadyForScrolling || config.sections.isEmpty) {
+    if (!hasClients || config.sections.isEmpty) {
       return -1;
     }
 
@@ -363,7 +294,7 @@ final class FixedScrollToIndexController extends ScrollController {
   /// to avoid excessive calculations during rapid scrolling.
   void _onScrollPositionChanged() {
     // Only process scroll changes if we have listeners and aren't programmatically scrolling
-    if (_listenerCount > 0 && !_isScrollingToSection && isReadyForScrolling) {
+    if (_listenerCount > 0 && !_isScrollingToSection && hasClients) {
       _updateCurrentVisibleIndex();
     }
   }
@@ -386,6 +317,7 @@ final class FixedScrollToIndexController extends ScrollController {
 }
 
 // import 'package:flutter/widgets.dart';
+
 // import '../core/scrollable_config.dart';
 
 // /// Callback function type for index change notifications.
@@ -395,7 +327,6 @@ final class FixedScrollToIndexController extends ScrollController {
 // typedef IndexListener = void Function(int index);
 
 // final class FixedScrollToIndexController extends ScrollController {
-//   final ScrollableConfig config;
 //   FixedScrollToIndexController({
 //     required this.config,
 //     super.initialScrollOffset,
@@ -405,6 +336,8 @@ final class FixedScrollToIndexController extends ScrollController {
 //     super.onDetach,
 //   });
 
+//   final ScrollableConfig config;
+
 //   bool _isScrollingToSection = false;
 //   int _currentVisibleIndex = 0;
 
@@ -413,11 +346,16 @@ final class FixedScrollToIndexController extends ScrollController {
 //   /// changes by more than this amount to avoid excessive callbacks.
 //   static const double _scrollThreshold = 10.0;
 
+//   /// Checks if the controller is properly attached and ready for scrolling
+//   bool get isReadyForScrolling => hasClients && positions.isNotEmpty;
+
 //   /// Scrolls to the beginning of a specific ContentSection.
 //   ///
 //   /// [sectionIndex] - Index of the ContentSection in the config.sections list
 //   /// [duration] - Animation duration (optional, defaults to 300ms)
 //   /// [curve] - Animation curve (optional, defaults to Curves.easeInOut)
+//   /// [maxRetries] - Maximum number of retry attempts if controller isn't ready
+//   /// [retryDelay] - Delay between retry attempts
 //   ///
 //   /// The scroll offset is calculated by:
 //   /// 1. Adding the AnchorSection extent (height before the list)
@@ -426,10 +364,26 @@ final class FixedScrollToIndexController extends ScrollController {
 //     required int sectionIndex,
 //     Duration duration = const Duration(milliseconds: 300),
 //     Curve curve = Curves.easeInOut,
+//     int maxRetries = 10,
+//     Duration retryDelay = const Duration(milliseconds: 50),
 //   }) async {
 //     if (sectionIndex < 0 || sectionIndex >= config.sections.length) {
 //       throw ArgumentError(
 //         'sectionIndex must be within bounds of config.sections',
+//       );
+//     }
+
+//     // Wait for the controller to be ready with retry mechanism
+//     int retryCount = 0;
+//     while (!isReadyForScrolling && retryCount < maxRetries) {
+//       await Future.delayed(retryDelay);
+//       retryCount++;
+//     }
+
+//     if (!isReadyForScrolling) {
+//       throw StateError(
+//         'ScrollController is not attached to any scroll views after $maxRetries retries. '
+//         'Make sure the CustomScrollView is properly built and the controller is attached.',
 //       );
 //     }
 
@@ -445,13 +399,59 @@ final class FixedScrollToIndexController extends ScrollController {
 //       offset += config.sections[i].extent;
 //     }
 
-//     // Animate to the calculated offset (beginning of the target section)
-//     await animateTo(offset, duration: duration, curve: curve);
+//     try {
+//       // Animate to the calculated offset (beginning of the target section)
+//       await animateTo(offset, duration: duration, curve: curve);
+//     } finally {
+//       _isScrollingToSection = false;
 
-//     _isScrollingToSection = false;
+//       // Update the current visible index and notify listeners
+//       _updateCurrentVisibleIndex();
+//     }
+//   }
 
-//     // Update the current visible index and notify listeners
-//     _updateCurrentVisibleIndex();
+//   /// Alternative method that waits for the next frame before scrolling
+//   /// This is useful when calling immediately after widget creation
+//   Future<void> scrollToSectionAfterFrame({
+//     required int sectionIndex,
+//     Duration duration = const Duration(milliseconds: 300),
+//     Curve curve = Curves.easeInOut,
+//   }) async {
+//     // Wait for the next frame to ensure the widget tree is fully built
+//     await WidgetsBinding.instance.endOfFrame;
+
+//     // Additional small delay to ensure attachment
+//     await Future.delayed(const Duration(milliseconds: 16));
+
+//     return scrollToSection(
+//       sectionIndex: sectionIndex,
+//       duration: duration,
+//       curve: curve,
+//     );
+//   }
+
+//   /// Scrolls to section immediately if controller is ready, otherwise schedules it
+//   void scrollToSectionWhenReady({
+//     required int sectionIndex,
+//     Duration duration = const Duration(milliseconds: 300),
+//     Curve curve = Curves.easeInOut,
+//   }) {
+//     if (isReadyForScrolling) {
+//       scrollToSection(
+//         sectionIndex: sectionIndex,
+//         duration: duration,
+//         curve: curve,
+//       );
+//     } else {
+//       // Schedule for next frame
+//       WidgetsBinding.instance.addPostFrameCallback((_) {
+//         scrollToSectionAfterFrame(
+//           sectionIndex: sectionIndex,
+//           duration: duration,
+//           curve: curve,
+//         );
+//       });
+//     }
 //   }
 
 //   /// Empty listener array used as default to avoid null checks.
@@ -613,7 +613,7 @@ final class FixedScrollToIndexController extends ScrollController {
 //   ///
 //   /// Returns -1 if no sections are configured or if scroll position is invalid.
 //   int _calculateVisibleSectionIndex() {
-//     if (!hasClients || config.sections.isEmpty) {
+//     if (!isReadyForScrolling || config.sections.isEmpty) {
 //       return -1;
 //     }
 
@@ -681,7 +681,7 @@ final class FixedScrollToIndexController extends ScrollController {
 //   /// to avoid excessive calculations during rapid scrolling.
 //   void _onScrollPositionChanged() {
 //     // Only process scroll changes if we have listeners and aren't programmatically scrolling
-//     if (_listenerCount > 0 && !_isScrollingToSection && hasClients) {
+//     if (_listenerCount > 0 && !_isScrollingToSection && isReadyForScrolling) {
 //       _updateCurrentVisibleIndex();
 //     }
 //   }

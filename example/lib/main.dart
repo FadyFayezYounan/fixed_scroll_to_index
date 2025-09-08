@@ -102,7 +102,7 @@ class _MyHomePageState extends State<MyHomePage>
   void _scrollToCategory(int categoryIndex) {
     // Scroll to the beginning of the selected category section
     _controller.scrollToSection(
-      sectionIndex: categoryIndex,
+      categoryIndex,
       duration: const Duration(milliseconds: 500),
       curve: Curves.easeInOutCubic,
     );

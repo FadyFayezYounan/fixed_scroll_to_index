@@ -40,7 +40,7 @@ class _FixedScrollToIndexBuilderState extends State<FixedScrollToIndexBuilder> {
       WidgetsBinding.instance.endOfFrame.then((_) {
         if (mounted) {
           _controller.scrollToSection(
-            sectionIndex: widget.initialIndex!,
+            widget.initialIndex!,
             duration: Duration.zero,
           );
         }
@@ -77,7 +77,7 @@ class _FixedScrollToIndexBuilderState extends State<FixedScrollToIndexBuilder> {
       WidgetsBinding.instance.endOfFrame.then((_) {
         if (mounted) {
           _controller.scrollToSection(
-            sectionIndex: widget.initialIndex!,
+            widget.initialIndex!,
             duration: Duration.zero,
           );
         }
