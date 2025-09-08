@@ -58,7 +58,7 @@ class _MyHomePageState extends State<MyHomePage>
     _tabController = TabController(length: categories.length, vsync: this);
 
     // Create the ScrollableConfig with sections
-    final config = ScrollableConfig(
+    final config = FixedScrollConfig(
       sections: categories.map((category) {
         final items = categoryItems[category]!;
         return FixedContentSection(

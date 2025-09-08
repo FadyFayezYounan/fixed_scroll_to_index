@@ -89,6 +89,33 @@ final class FixedContentSection extends ContentSection with EquatableMixin {
   }
 }
 
+final class FixedScrollConfig extends Equatable {
+  const FixedScrollConfig({
+    this.anchor = const AnchorSection(),
+    required this.sections,
+  });
+
+  final AnchorSection anchor;
+  final List<ContentSection> sections;
+
+  FixedScrollConfig copyWith({
+    AnchorSection? anchor,
+    List<ContentSection>? sections,
+  }) {
+    return FixedScrollConfig(
+      anchor: anchor ?? this.anchor,
+      sections: sections ?? this.sections,
+    );
+  }
+
+  @override
+  String toString() => 'ScrollableConfig(anchor: $anchor, sections: $sections)';
+
+  @override
+  List<Object?> get props => [anchor, sections];
+}
+
+
 // double _defaultItemSpacingBuilder(int itemIndex) => 0.0;
 
 // final class VariableContentSection extends ContentSection with EquatableMixin {
@@ -237,29 +264,3 @@ final class FixedContentSection extends ContentSection with EquatableMixin {
 //     mainAxisCount,
 //   ];
 // }
-
-final class ScrollableConfig extends Equatable {
-  const ScrollableConfig({
-    this.anchor = const AnchorSection(),
-    required this.sections,
-  });
-
-  final AnchorSection anchor;
-  final List<ContentSection> sections;
-
-  ScrollableConfig copyWith({
-    AnchorSection? anchor,
-    List<ContentSection>? sections,
-  }) {
-    return ScrollableConfig(
-      anchor: anchor ?? this.anchor,
-      sections: sections ?? this.sections,
-    );
-  }
-
-  @override
-  String toString() => 'ScrollableConfig(anchor: $anchor, sections: $sections)';
-
-  @override
-  List<Object?> get props => [anchor, sections];
-}

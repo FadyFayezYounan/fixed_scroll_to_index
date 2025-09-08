@@ -15,7 +15,7 @@ class FixedScrollToIndexBuilder extends StatefulWidget {
     required this.builder,
     super.key,
   });
-  final ScrollableConfig config;
+  final FixedScrollConfig config;
   final int? initialIndex;
   final ValueChanged<int>? onIndexChanged;
   final FixedScrollToIndexBuilderCallback builder;

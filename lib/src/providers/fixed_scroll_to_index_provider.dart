@@ -10,7 +10,7 @@ class FixedScrollToIndexProvider extends InheritedWidget {
   }) : config = controller.config;
 
   final FixedScrollToIndexController controller;
-  final ScrollableConfig config;
+  final FixedScrollConfig config;
 
   // Static method to access the provider from context
   // If listen is true (default: false), the caller will subscribe to updates.

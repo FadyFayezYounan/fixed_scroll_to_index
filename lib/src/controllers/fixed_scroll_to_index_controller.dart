@@ -8,7 +8,7 @@ import '../core/scrollable_config.dart';
 typedef IndexListener = void Function(int index);
 
 final class FixedScrollToIndexController extends ScrollController {
-  final ScrollableConfig config;
+  final FixedScrollConfig config;
   FixedScrollToIndexController({
     required this.config,
     super.initialScrollOffset,
