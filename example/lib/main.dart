@@ -61,12 +61,12 @@ class _MyHomePageState extends State<MyHomePage>
     final config = ScrollableConfig(
       sections: categories.map((category) {
         final items = categoryItems[category]!;
-        return ContentSection(
+        return FixedContentSection(
           sectionHeader: 60.0, // Height for section title
           itemCount: items.length,
           mainAxisCount: 2, // 2 columns grid
-          itemExtentBuilder: (index) => 120.0, // Fixed item height
-          itemSpacingBuilder: (index) => 8.0, // Spacing between rows
+          itemExtent: 120.0, // Fixed item height
+          itemSpacing: 8.0, // Spacing between rows
         );
       }).toList(),
     );
