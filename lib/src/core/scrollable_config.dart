@@ -8,6 +8,10 @@ final class AnchorSection extends ScrollableExtent with EquatableMixin {
   @override
   final double extent;
 
+  AnchorSection copyWith({double? extent}) {
+    return AnchorSection(extent: extent ?? this.extent);
+  }
+
   @override
   String toString() => 'AnchorSection(extent: $extent)';
 
@@ -67,6 +71,22 @@ final class FixedContentSection extends ContentSection with EquatableMixin {
 
   @override
   double asFixedItemSpacing() => itemSpacing;
+
+  FixedContentSection copyWith({
+    double? sectionHeader,
+    int? itemCount,
+    int? mainAxisCount,
+    double? itemSpacing,
+    double? itemExtent,
+  }) {
+    return FixedContentSection(
+      sectionHeader: sectionHeader ?? this.sectionHeader,
+      itemCount: itemCount ?? this.itemCount,
+      mainAxisCount: mainAxisCount ?? this.mainAxisCount,
+      itemSpacing: itemSpacing ?? this.itemSpacing,
+      itemExtent: itemExtent ?? this.itemExtent,
+    );
+  }
 }
 
 // double _defaultItemSpacingBuilder(int itemIndex) => 0.0;
@@ -226,6 +246,16 @@ final class ScrollableConfig extends Equatable {
 
   final AnchorSection anchor;
   final List<ContentSection> sections;
+
+  ScrollableConfig copyWith({
+    AnchorSection? anchor,
+    List<ContentSection>? sections,
+  }) {
+    return ScrollableConfig(
+      anchor: anchor ?? this.anchor,
+      sections: sections ?? this.sections,
+    );
+  }
 
   @override
   String toString() => 'ScrollableConfig(anchor: $anchor, sections: $sections)';
