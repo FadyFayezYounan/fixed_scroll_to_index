@@ -312,6 +312,7 @@ final class FixedScrollToIndexController extends ScrollController {
   void dispose() {
     _indexListeners = _emptyIndexListeners;
     _listenerCount = 0;
+    print('FixedScrollToIndexController disposed');
     super.dispose();
   }
 }
